@@ -8,8 +8,32 @@ $(".navbar-nav li a").on("click", function () {
     }
 });
 
+var arr = null;
+
 $(document).ready(function () {
     $("#formControlSelect1").focus();
+
+    $.ajax({
+        'async': false,
+        'global': false,
+        'url': "pompeVAC.json",
+        'dataType': "json",
+        'success': function (data) {
+            arr = data;
+        }
+    });
+
+    console.log(arr.data.length);
+
+    // Populate dropdown
+    var dropMenu = document.getElementById("tag");
+    for (var i = 0; i < arr.data.length; i++) {
+        var opt = arr.data[i][1];
+        var el = document.createElement("option");
+        el.textContent = opt;
+        el.value = opt;
+        dropMenu.appendChild(el);
+    }
 });
 
 $("#formControlSelect1").focusout(function () {
@@ -22,12 +46,64 @@ $("#formControlSelect1").focusout(function () {
     }
 });
 
+$(document).on('keypress', 'select', function (e) {
+    if (e.which == 13) {
+        e.preventDefault();
+        // Get all focusable elements on the page
+        var $canfocus = $(':focusable');
+        var index = $canfocus.index(document.activeElement) + 1;
+        if (index >= $canfocus.length) index = 0;
+        $canfocus.eq(index).focus();
+    }
+});
+
+$("#serial").keypress(function (e) {
+    if (e.which == 13) {
+        e.preventDefault();
+        var serialNumber = $("#serial").val();
+        console.log(serialNumber.length);
+        console.log(arr.data);
+
+        if (serialNumber.length == 27 || serialNumber.length == 9) {
+            serialNumber = serialNumber.substr(serialNumber.length - 9)
+            $("#serial").val(serialNumber);
+        } else {
+            return;
+        }
+
+        var testIt = serialNumber;
+        var i = 0,
+            k = 0,
+            indx = [],
+            msg;
+        for (i = 0; i < arr.data.length; i++) {
+            for (k = 0; k < arr.data[i].length; k++) {
+                if (arr.data[i][k] === testIt) {
+                    indx = [i, k];
+                    break;
+                }
+            }
+        }
+        if (typeof indx[0] == "undefined" || typeof indx[1] == "undefined") {
+            msg = ("N/A");
+            $("#tag").val(msg);
+        } else {
+            msg = "i= " + indx[0] + " k= " + indx[1];
+            $("#tag").val(arr.data[indx[0]][1]);
+        }
+        console.log(msg);
+
+
+    }
+});
+
 $("#formControlSelect1").change(function () {
     var barcode = $("#formControlSelect1 option:selected").val();
     //console.log(barcode);
 
     if (barcode != "") {
         $("#serial").prop("disabled", false);
+        $("#tag").prop("disabled", false);
     }
 });
 
