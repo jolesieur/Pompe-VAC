@@ -216,10 +216,13 @@ function saveData() {
             document.getElementById("success-alert").classList.remove("d-none");
         }
 
-        //$("#" + senderRootID + " :input[type=text]").val("");
-        //$("#" + senderRootID + " .btn-valider-inspection").attr("disabled", "disabled");
-        //$("#" + senderRootID).find("svg").removeClass('fa-chevron-up').addClass('fa-chevron-down');
-        //$("#" + senderRootID).find(".drop_content").addClass("d-none");
+        $(':input', '#inputform')
+            .not(':button, :submit, :reset, :hidden')
+            .val('')
+            .prop('checked', false)
+            .prop('selected', false);
+
+        $("#formControlSelect1").focus();
 
         $('body,html').animate({
             scrollTop: 0
