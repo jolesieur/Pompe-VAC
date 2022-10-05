@@ -2,6 +2,14 @@
 <html lang="en">
 
 <head>
+    <!-- <link rel="manifest" href="manifest.json" />-->
+    <!-- ios support -->
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="PompeVAC">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#2196F3">
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -128,6 +136,7 @@
             font-size: 0.9rem;
             color: gray;
         }
+
     </style>
 </head>
 
@@ -184,7 +193,7 @@
                                 <input type="text" class="form-control" id="serial" data-index="2" disabled>
                             </div>
                             <div class="form-group col-sm-2">
-                                <label for="name" class="control-label">Tag</label>
+                                <label for="name" class="control-label" data-index="3">Tag</label>
                                 <!--<input type="text" class="form-control" id="name" data-index="3" disabled>-->
                                 <select class="form-control" id="tag" disabled>
                                     <option style="display:none"></option>
@@ -203,7 +212,7 @@
                 </div>
                 <div>
                     <div class="form-group text-center">
-                        <button type="button" class="btn btn-success btn-valider-inspection" disabled>
+                        <button type="button" class="btn btn-success btn-valider-intervention" disabled>
                             Valider</button>
                     </div>
                 </div>
@@ -219,6 +228,7 @@
                         <table id="example" class="table nowrap table-striped table- table-bordered" style="width:100%">
                             <thead>
                                 <tr>
+                                    <th class="id">ID</th>
                                     <th>Date</th>
                                     <th>Type d'intervention</th>
                                     <th>Tag</th>
@@ -290,32 +300,93 @@
         </div>
     </main>
 
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+    <!--    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-analytics.js"></script>-->
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-auth.js"></script>
+
     <script src="js/pwassistant.js" type="text/javascript"></script>
 
     <script>
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhnI6Wuxy9-lCaaz8NeIah6GieElHfGgY",
+            authDomain: "pwassistant-f0c9f.firebaseapp.com",
+            databaseURL: "https://pwassistant-f0c9f-default-rtdb.firebaseio.com",
+            projectId: "pwassistant-f0c9f",
+            storageBucket: "pwassistant-f0c9f.appspot.com",
+            messagingSenderId: "129191690225",
+            appId: "1:129191690225:web:e12cc17357083790edce50",
+            measurementId: "G-40Y1FWMG5L"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        //firebase.analytics();
+
+        const db = firebase.firestore()
+        var jsons = new Object();
+        var json_obj = new Object();
+
+        db.collection("pompeVAC")
+            .onSnapshot(function(querySnapshot) {
+                var _json_obj = new Object();
+                querySnapshot.forEach(function(doc) {
+
+                    var raw = JSON.parse(doc.data().data);
+                    _json_obj[doc.id] = raw;
+                });
+                json_obj["pompeVAC"] = _json_obj;
+                console.log("db read: ", json_obj);
+                loadTable();
+            });
+
+    </script>
+
+    <script>
+        $(document).on('keypress', 'select', function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                // Get all focusable elements on the page
+                var $canfocus = $(':focusable');
+                var index = $canfocus.index(document.activeElement) + 1;
+                if (index >= $canfocus.length) index = 0;
+                $canfocus.eq(index).focus();
+            }
+        });
+
+
         jQuery.extend(jQuery.expr[':'], {
             focusable: function(el, index, selector) {
                 return $(el).is('a, button, :input, [tabindex]');
             }
         });
+
     </script>
 
     <script>
-        $(document).ready(function() {
+        /*        $(document).ready(function() {
             var table = $('#example').DataTable({
                 stateSave: true,
-                ajax: 'log.json',
+                ajax: 'log.json'
             });
-
-            $('#example tbody').on('click', 'tr', function() {
-                if ($(this).hasClass('selected')) {
-                    $(this).removeClass('selected');
-                } else {
-                    table.$('tr.selected').removeClass('selected');
-                    $(this).addClass('selected');
-                }
-            });
+});*/
+        $('#example tbody').on('click', 'tr', function() {
+            if ($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+            } else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
         });
+
     </script>
 
-</body></html>
+</body>
+
+</html>

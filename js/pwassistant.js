@@ -9,6 +9,9 @@ $(".navbar-nav li a").on("click", function () {
 });
 
 var arr = null;
+var dataSet = [];
+
+var table;
 
 $(document).ready(function () {
     $("#formControlSelect1").focus();
@@ -34,6 +37,12 @@ $(document).ready(function () {
         el.value = opt;
         dropMenu.appendChild(el);
     }
+
+    table = $('#example').DataTable({
+        order: [0, 'desc'],
+        stateSave: true,
+        data: dataSet
+    });
 });
 
 $("#formControlSelect1").focusout(function () {
@@ -43,17 +52,6 @@ $("#formControlSelect1").focusout(function () {
     if (barcode == "") {
         $("#formControlSelect1").focus();
         return false;
-    }
-});
-
-$(document).on('keypress', 'select', function (e) {
-    if (e.which == 13) {
-        e.preventDefault();
-        // Get all focusable elements on the page
-        var $canfocus = $(':focusable');
-        var index = $canfocus.index(document.activeElement) + 1;
-        if (index >= $canfocus.length) index = 0;
-        $canfocus.eq(index).focus();
     }
 });
 
@@ -96,10 +94,9 @@ $("#serial").keypress(function (e) {
         var action = $("#formControlSelect1 option:selected").val();
         console.log(action);
         if (action == "FIN") {
-            $(".btn-valider-inspection").removeAttr("disabled");
+            //$(".btn-valider-intervention").removeAttr("disabled");
+            saveData();
         }
-
-
     }
 });
 
@@ -165,6 +162,88 @@ $(function () {
     })
 });
 
-$(".btn-valider").on("click", function () {
+$(".btn-valider-intervention").on("click", function () {
 
 });
+
+
+function saveData() {
+    var currentDate = new Date();
+    var currentDateString;
+
+    var entryID = (json_obj["pompeVAC"]["historique"].length).toString();
+
+    currentDateString = ('0' + currentDate.getDate()).slice(-2) + '-' +
+        ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
+        currentDate.getFullYear();
+
+    /*    $.ajax({
+            'async': false,
+            'global': false,
+            'url': "log.json",
+            'dataType': "json",
+            'success': function (data) {
+                log = data;
+            }
+        });
+        console.log(log.data);*/
+
+    var intervention = $("#formControlSelect1 option:selected").val();
+    var serial = $("#serial").val();
+    var tag = $("#tag").val();
+    var tracking = $("#tracking").val();
+    var note = $("#note").val();
+
+    newData = [entryID, currentDateString, intervention, tag, serial, "CHAUR", tracking, note];
+    json_obj["pompeVAC"]["historique"].push(newData);
+    console.log(JSON.stringify(json_obj["pompeVAC"]["historique"]));
+
+    // Get a new write batch
+    var batch = db.batch();
+
+    // Set the value of 'hemodialyse -> inspection'
+    var hemoRef = db.collection("pompeVAC").doc("historique");
+    batch.set(hemoRef, {
+        data: JSON.stringify(json_obj["pompeVAC"]["historique"])
+    });
+
+    // Commit the batch
+    batch.commit().then(() => { // Write successful
+        $("#error-alert").hide();
+        $("#success-alert").show();
+
+        if (document.getElementById("success-alert").classList.contains("d-none")) {
+            document.getElementById("success-alert").classList.remove("d-none");
+        }
+
+        //$("#" + senderRootID + " :input[type=text]").val("");
+        //$("#" + senderRootID + " .btn-valider-inspection").attr("disabled", "disabled");
+        //$("#" + senderRootID).find("svg").removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        //$("#" + senderRootID).find(".drop_content").addClass("d-none");
+
+        $('body,html').animate({
+            scrollTop: 0
+        }, 0);
+
+        window.setTimeout(function () {
+            $("#success-alert").hide();
+            //document.getElementById('success-alert').classList.add('d-none');
+        }, 5000);
+    })
+
+};
+
+function loadTable() {
+
+    console.log("historique: ", json_obj["pompeVAC"]["historique"]);
+
+
+    dataSet = json_obj["pompeVAC"]["historique"];
+    console.log(dataSet);
+
+    table.clear().rows.add(dataSet).draw().columns('.id').order('desc').draw().columns([0]).visible(false);
+
+    // Toggle the visibility
+    //var column = table.column(1);
+    //column.visible(!column.visible());
+};
