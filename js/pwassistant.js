@@ -93,6 +93,12 @@ $("#serial").keypress(function (e) {
         }
         console.log(msg);
 
+        var action = $("#formControlSelect1 option:selected").val();
+        console.log(action);
+        if (action == "FIN") {
+            $(".btn-valider-inspection").removeAttr("disabled");
+        }
+
 
     }
 });
