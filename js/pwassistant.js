@@ -8,40 +8,82 @@ $(".navbar-nav li a").on("click", function () {
     }
 });
 
-var arr = null;
 var dataSet = [];
-
+var arr = null;
 var table;
 
 $(document).ready(function () {
     $("#formControlSelect1").focus();
 
-    $.ajax({
-        'async': false,
-        'global': false,
-        'url': "pompeVAC.json",
-        'dataType': "json",
-        'success': function (data) {
-            arr = data;
-        }
-    });
-
-    console.log(arr.data.length);
-
-    // Populate dropdown
-    var dropMenu = document.getElementById("tag");
-    for (var i = 0; i < arr.data.length; i++) {
-        var opt = arr.data[i][1];
-        var el = document.createElement("option");
-        el.textContent = opt;
-        el.value = opt;
-        dropMenu.appendChild(el);
+    /*$.ajax({
+    'async': false,
+    'global': false,
+    'url': "pompeVAC.json",
+    'dataType': "json",
+    'success': function (data) {
+        arr = data;
     }
+});*/
+
+    //console.log(arr.data.length);
+
 
     table = $('#example').DataTable({
         order: [0, 'desc'],
         stateSave: true,
         data: dataSet
+    });
+
+    $(this).one('keydown', function (e) {
+        if (e.keyCode == 17) {
+            $(".btn-delete").removeAttr("disabled");
+        }
+    });
+
+
+    $('#addPumpform input').keyup(function () {
+        var empty = false;
+        $('#addPumpform input').each(function () {
+            if ($(this).val().length == 0) {
+                empty = true;
+            }
+        });
+
+        if (empty) {
+            $('.btn-valider-addPump').attr('disabled', 'disabled');
+        } else {
+            $('.btn-valider-addPump').removeAttr('disabled');
+        }
+    });
+});
+
+$('#newTag, #newSerial').keyup(function () {
+    $(this).val($(this).val().toUpperCase());
+});
+
+$('body').on('keyup', function (e) {
+    if (e.keyCode == 17) {
+        //do something
+        $(".btn-delete").attr("disabled", "disabled");
+    }
+    // after first keyup set to handle next keydown only once:
+    $(this).one('keydown', function (e) {
+        if (e.keyCode == 17) {
+            $(".btn-delete").removeAttr("disabled");
+        }
+    });
+});
+
+$(function () {
+    var list = [
+               "CHAUR",
+               "Shawinigan",
+               "Maskinongé",
+               "BNY",
+                "Prêt d'équipements"
+            ];
+    $("#newLocalisation").autocomplete({
+        source: list
     });
 });
 
@@ -60,7 +102,7 @@ $("#serial").keypress(function (e) {
         e.preventDefault();
         var serialNumber = $("#serial").val();
         console.log(serialNumber.length);
-        console.log(arr.data);
+        console.log(arr);
 
         if (serialNumber.length == 27 || serialNumber.length == 9) {
             serialNumber = serialNumber.substr(serialNumber.length - 9)
@@ -74,9 +116,9 @@ $("#serial").keypress(function (e) {
             k = 0,
             indx = [],
             msg;
-        for (i = 0; i < arr.data.length; i++) {
-            for (k = 0; k < arr.data[i].length; k++) {
-                if (arr.data[i][k] === testIt) {
+        for (i = 0; i < arr.length; i++) {
+            for (k = 0; k < arr[i].length; k++) {
+                if (arr[i][k] === testIt) {
                     indx = [i, k];
                     break;
                 }
@@ -87,7 +129,7 @@ $("#serial").keypress(function (e) {
             $("#tag").val(msg);
         } else {
             msg = "i= " + indx[0] + " k= " + indx[1];
-            $("#tag").val(arr.data[indx[0]][1]);
+            $("#tag").val(arr[indx[0]][1]);
         }
         console.log(msg);
 
@@ -107,6 +149,34 @@ $("#formControlSelect1").change(function () {
     if (barcode != "") {
         $("#serial").prop("disabled", false);
         $("#tag").prop("disabled", false);
+    }
+});
+
+$("#tag").change(function () {
+    var tagName = $("#tag option:selected").val();
+
+    if (tagName != "") {
+        var testIt = tagName;
+        var i = 0,
+            k = 0,
+            indx = [],
+            msg;
+        for (i = 0; i < arr.length; i++) {
+            for (k = 0; k < arr[i].length; k++) {
+                if (arr[i][k] === testIt) {
+                    indx = [i, k];
+                    break;
+                }
+            }
+        }
+        if (typeof indx[0] == "undefined" || typeof indx[1] == "undefined") {
+            msg = ("");
+            $("#serial").val(msg);
+        } else {
+            msg = "i= " + indx[0] + " k= " + indx[1];
+            $("#serial").val(arr[indx[0]][2]);
+            $(".btn-valider-intervention").removeAttr("disabled");
+        }
     }
 });
 
@@ -163,9 +233,51 @@ $(function () {
 });
 
 $(".btn-valider-intervention").on("click", function () {
-
+    saveData();
 });
 
+$(".btn-valider-addPump").on("click", function () {
+    var localisation = $("#newLocalisation").val();
+    var tag = $("#newTag").val();
+    var serial = $("#newSerial").val();
+
+    newData = [localisation, tag, serial];
+    json_obj["pompeVAC"]["inventaire"].push(newData);
+
+    // Get a new write batch
+    var batch = db.batch();
+
+    // Set the value of 'hemodialyse -> inspection'
+    var hemoRef = db.collection("pompeVAC").doc("inventaire");
+    batch.set(hemoRef, {
+        data: JSON.stringify(json_obj["pompeVAC"]["inventaire"])
+    });
+
+    // Commit the batch
+    batch.commit().then(() => { // Write successful
+        $("#error-alert").hide();
+        $("#success-alert").show();
+
+        if (document.getElementById("success-alert").classList.contains("d-none")) {
+            document.getElementById("success-alert").classList.remove("d-none");
+        }
+
+        $(':input', '#addPumpform')
+            .not(':button, :submit, :reset, :hidden')
+            .val('')
+
+        $(".btn-valider-addPump").attr("disabled", "disabled");
+
+        $('body,html').animate({
+            scrollTop: 0
+        }, 0);
+
+        window.setTimeout(function () {
+            $("#success-alert").hide();
+            //document.getElementById('success-alert').classList.add('d-none');
+        }, 5000);
+    })
+});
 
 function saveData() {
     var currentDate = new Date();
@@ -196,7 +308,7 @@ function saveData() {
 
     newData = [entryID, currentDateString, intervention, tag, serial, "CHAUR", tracking, note];
     json_obj["pompeVAC"]["historique"].push(newData);
-    console.log(JSON.stringify(json_obj["pompeVAC"]["historique"]));
+    //console.log(JSON.stringify(json_obj["pompeVAC"]["historique"]));
 
     // Get a new write batch
     var batch = db.batch();
@@ -220,7 +332,13 @@ function saveData() {
             .not(':button, :submit, :reset, :hidden')
             .val('')
             .prop('checked', false)
-            .prop('selected', false);
+            .prop("disabled", true);
+
+        $('#formControlSelect1')
+            .prop('selected', false)
+            .prop("disabled", false);
+
+        $(".btn-valider-intervention").attr("disabled", "disabled");
 
         $("#formControlSelect1").focus();
 
@@ -236,13 +354,26 @@ function saveData() {
 
 };
 
+function populateDropdown() {
+    arr = json_obj["pompeVAC"]["inventaire"];
+    // Populate dropdown
+    var dropMenu = document.getElementById("tag");
+    for (var i = 0; i < arr.length; i++) {
+        var opt = arr[i][1];
+        var el = document.createElement("option");
+        el.textContent = opt;
+        el.value = opt;
+        dropMenu.appendChild(el);
+    }
+};
+
 function loadTable() {
 
-    console.log("historique: ", json_obj["pompeVAC"]["historique"]);
+    //console.log("historique: ", json_obj["pompeVAC"]["historique"]);
 
 
     dataSet = json_obj["pompeVAC"]["historique"];
-    console.log(dataSet);
+    //console.log(dataSet);
 
     table.clear().rows.add(dataSet).draw().columns('.id').order('desc').draw().columns([0]).visible(false);
 
