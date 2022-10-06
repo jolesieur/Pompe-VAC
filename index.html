@@ -139,6 +139,12 @@
             color: gray;
         }
 
+        .tab-content {
+            padding-top: 1.5rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
         body {
             /* min-height: 75rem;*/
             min-width: 975px;
@@ -171,11 +177,20 @@
                     </div>
                 </li>
             </ul>
+            <!-- Success Alert -->
+            <div id="success-alert" class="alert alert-success d-none" role="alert">
+                Donnés sauvegardées dans la base de données.
+            </div>
+            <!-- Error Alert -->
+            <div id="error-alert" class="alert alert-danger d-none" role="alert">
+                <strong>Erreur!</strong> Un problème est survenu lors de la transmission des données.
+                <button type="button" class="close alert-close">&times;</button>
+            </div>
         </div>
     </nav>
 
     <main class="">
-        <div class="tab-content bg-light p-4 rounded">
+        <div class="tab-content bg-light rounded">
 
             <!-- Début Intervention -->
             <div class="tab-pane fade show active" id="content-2" aria-labelledby="tab-2" role="tabpanel" style="padding-top:.25em">
@@ -260,44 +275,29 @@
             <!-- Début Ajout Pompe -->
             <div class="tab-pane root fade" id="content-addPump" aria-labelledby="tab-6" role="tabpanel">
                 <h3 class="lead">Ajouter une nouvelle pompe.</h3>
-                <div>
-                    <div class="text-center d-flex justify-content-center h-100">
-                        <form id="addPumpform" class="form-row">
-                            <div class="form-group col">
-                                <!--<label for="name" class="control-label">Localisation</label>-->
-                                <input type="text" class="form-control" id="newLocalisation" data-index="1" placeholder="Localisation">
-                            </div>
-                            <div class="form-group col">
-                                <!--<label for="name" class="control-label">N° de série</label>-->
-                                <input type="text" class="form-control" id="newSerial" data-index="2" placeholder="N° de série">
-                            </div>
-                            <div class="form-group col-sm">
-                                <!-- <label for="name" class="control-label" data-index="3">Tag</label>-->
-                                <input type="text" class="form-control" id="newTag" data-index="3" placeholder="Tag">
-                            </div>
-                            <div class="form-group text-center">
-                                <button type="button" class="btn btn-success btn-valider-addPump" disabled>
-                                    Valider</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div>
-
+                <div class="text-center d-flex justify-content-center h-100">
+                    <form id="addPumpform" class="form-row">
+                        <div class="form-group col">
+                            <!--<label for="name" class="control-label">Localisation</label>-->
+                            <input type="text" class="form-control" id="newLocalisation" data-index="1" placeholder="Localisation">
+                        </div>
+                        <div class="form-group col">
+                            <!--<label for="name" class="control-label">N° de série</label>-->
+                            <input type="text" class="form-control" id="newSerial" data-index="2" placeholder="N° de série">
+                        </div>
+                        <div class="form-group col-sm">
+                            <!-- <label for="name" class="control-label" data-index="3">Tag</label>-->
+                            <input type="text" class="form-control" id="newTag" data-index="3" placeholder="Tag">
+                        </div>
+                        <div class="form-group text-center">
+                            <button type="button" class="btn btn-success btn-valider-addPump" disabled>
+                                Valider</button>
+                        </div>
+                    </form>
                 </div>
             </div>
             <!-- Fin Ajout Pompe -->
             <!-- Fin Autre -->
-
-            <!-- Success Alert -->
-            <div id="success-alert" class="alert alert-success d-none" role="alert">
-                Donnés sauvegardées dans la base de données.
-            </div>
-            <!-- Error Alert -->
-            <div id="error-alert" class="alert alert-danger d-none" role="alert">
-                <strong>Erreur!</strong> Un problème est survenu lors de la transmission des données.
-                <button type="button" class="close alert-close">&times;</button>
-            </div>
         </div>
     </main>
 
