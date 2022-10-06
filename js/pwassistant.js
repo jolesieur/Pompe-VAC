@@ -300,7 +300,7 @@ function saveData() {
         });
         console.log(log.data);*/
 
-    var intervention = $("#formControlSelect1 option:selected").val();
+    var intervention = $("#formControlSelect1 option:selected").text().substring(3);
     var serial = $("#serial").val();
     var tag = $("#tag").val();
     var tracking = $("#tracking").val();
