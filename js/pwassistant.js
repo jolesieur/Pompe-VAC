@@ -15,19 +15,6 @@ var table;
 $(document).ready(function () {
     $("#formControlSelect1").focus();
 
-    /*$.ajax({
-    'async': false,
-    'global': false,
-    'url': "pompeVAC.json",
-    'dataType': "json",
-    'success': function (data) {
-        arr = data;
-    }
-});*/
-
-    //console.log(arr.data.length);
-
-
     table = $('#example').DataTable({
         order: [0, 'desc'],
         stateSave: true,
@@ -104,10 +91,18 @@ $("#serial").keypress(function (e) {
         console.log(serialNumber.length);
         console.log(arr);
 
+
         if (serialNumber.length == 27 || serialNumber.length == 9) {
-            serialNumber = serialNumber.substr(serialNumber.length - 9)
-            $("#serial").val(serialNumber);
+            serialNumber = serialNumber.substr(serialNumber.length - 9);
+
+            if (/^[A-Z]+$/.test(serialNumber.substring(0, 4))) {
+                $("#serial").val(serialNumber);
+            } else {
+                $("#serial").val("");
+                return;
+            }
         } else {
+            $("#serial").val("");
             return;
         }
 
@@ -288,17 +283,6 @@ function saveData() {
     currentDateString = ('0' + currentDate.getDate()).slice(-2) + '-' +
         ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
         currentDate.getFullYear();
-
-    /*    $.ajax({
-            'async': false,
-            'global': false,
-            'url': "log.json",
-            'dataType': "json",
-            'success': function (data) {
-                log = data;
-            }
-        });
-        console.log(log.data);*/
 
     var intervention = $("#formControlSelect1 option:selected").text().substring(3);
     var serial = $("#serial").val();
