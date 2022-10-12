@@ -295,10 +295,44 @@ $('body').on('keyup', function (e) {
 });
 
 $('.btn-delete').click(function () {
-    //table.row('.selected').remove().draw(false);
     if (currentRow != null) {
         var data = $('#example').DataTable().row(currentRow).data();
         console.log(data[0]);
+
+        for (var i = 0; i < json_obj["pompeVAC"]["historique"].length; i++) {
+            if (json_obj["pompeVAC"]["historique"][i][0].indexOf(data[0]) >= 0) {
+                json_obj["pompeVAC"]["historique"].splice(i, 1);
+            }
+        }
+        console.log(json_obj["pompeVAC"]["historique"]);
+
+        // Get a new write batch
+        var batch = db.batch();
+
+        // Set the value of 'pompeVAC -> historique'
+        var hemoRef = db.collection("pompeVAC").doc("historique");
+        batch.set(hemoRef, {
+            data: JSON.stringify(json_obj["pompeVAC"]["historique"])
+        });
+
+        // Commit the batch
+        batch.commit().then(() => { // Write successful
+            $("#error-alert").hide();
+            $("#success-alert").show();
+
+            if (document.getElementById("success-alert").classList.contains("d-none")) {
+                document.getElementById("success-alert").classList.remove("d-none");
+            }
+
+            $('body,html').animate({
+                scrollTop: 0
+            }, 0);
+
+            window.setTimeout(function () {
+                $("#success-alert").hide();
+                //document.getElementById('success-alert').classList.add('d-none');
+            }, 5000);
+        })
     }
 });
 
@@ -396,7 +430,8 @@ function saveData() {
     var currentDate = new Date();
     var currentDateString;
 
-    var entryID = (json_obj["pompeVAC"]["historique"].length).toString();
+    // Generate unique ID from UNIX timestamp
+    var entryID = $.now().toString();
 
     currentDateString = ('0' + currentDate.getDate()).slice(-2) + '-' +
         ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
