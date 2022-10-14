@@ -144,26 +144,26 @@ $("#serial").keypress(function (e) {
             return;
         }
 
-        /*var testIt = serialNumber;
-var i = 0,
-    k = 0,
-    indx = [],
-    msg;
-for (i = 0; i < arr.length; i++) {
-    for (k = 0; k < arr[i].length; k++) {
-        if (arr[i][k] === testIt) {
-            indx = [i, k];
-            break;
+        var testIt = serialNumber;
+        var i = 0,
+            k = 0,
+            indx = [],
+            msg;
+        for (i = 0; i < arr.length; i++) {
+            for (k = 0; k < arr[i].length; k++) {
+                if (arr[i][k] === testIt) {
+                    indx = [i, k];
+                    break;
+                }
+            }
         }
-    }
-}
-if (typeof indx[0] == "undefined" || typeof indx[1] == "undefined") {
-    $("#tag").val("N/A");
-    localisation = "N/A";
-} else {
-    $("#tag").val(arr[indx[0]][1]);
-    localisation = arr[indx[0]][0];
-}*/
+        if (typeof indx[0] == "undefined" || typeof indx[1] == "undefined") {
+            $("#tag").val("N/A");
+            localisation = "N/A";
+        } else {
+            $("#tag").val(arr[indx[0]][1]);
+            localisation = arr[indx[0]][0];
+        }
 
         var action = $("#selectIntervention option:selected").val();
         if (action == "FIN") {
