@@ -96,6 +96,7 @@ $("#serial").on('input', function () {
         }
         // Try to retreive Tag Name from serial number
         var testIt = $(this).val();
+        $("#serial").val(testIt.toUpperCase());
         var i = 0,
             j = 0,
             indx = [],
@@ -126,12 +127,12 @@ $("#serial").on('input', function () {
 $("#serial").keypress(function (e) {
     if (e.which == 13) {
         e.preventDefault();
-        var serialNumber = $("#serial").val();
+        var serialNumber = $("#serial").val().toUpperCase();
         //console.log(serialNumber.length);
         //console.log(arr);
 
         if (serialNumber.length == 27 || serialNumber.length == 9) {
-            serialNumber = serialNumber.substr(serialNumber.length - 9);
+            serialNumber = serialNumber.substr(serialNumber.length - 9).toUpperCase();
 
             if (/^[A-Z]+$/.test(serialNumber.substring(0, 4))) {
                 $("#serial").val(serialNumber);
