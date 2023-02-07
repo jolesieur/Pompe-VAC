@@ -264,6 +264,7 @@ function populateDropdown() {
     arr = json_obj["pompeVAC"]["inventaire"];
     // Populate dropdown
     var dropMenu = document.getElementById("tag");
+    removeOptions(dropMenu);
     for (var i = 0; i < arr.length; i++) {
         var opt = arr[i][1];
         var el = document.createElement("option");
@@ -271,7 +272,15 @@ function populateDropdown() {
         el.value = opt;
         dropMenu.appendChild(el);
     }
+    dropMenu.selectedIndex = -1;
 };
+
+function removeOptions(selectElement) {
+    var i, L = selectElement.options.length - 1;
+    for(i = L; i >= 0; i--) {
+       selectElement.remove(i);
+    }
+ }
 ////////////////////////////////////////
 // Fin Script Page Intervention
 ////////////////////////////////////////
